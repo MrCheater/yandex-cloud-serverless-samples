@@ -3,7 +3,7 @@
 #### Getting started with the command-line interface
 https://cloud.yandex.com/docs/cli/quickstart
 
-#### Cloud Function Event
+#### Cloud Function Event / API Gateway Event
 ```json
 {
   "httpMethod": "GET",
@@ -82,4 +82,32 @@ https://cloud.yandex.com/docs/cli/quickstart
   "body": "",
   "isBase64Encoded": true
 }
+```
+
+#### API Gateway Config
+```yaml
+openapi: 3.0.0
+info:
+  title: Capybara API
+  version: 1.0.0
+servers:
+- url: https://d5dn5viopst5a0h5takb.apigw.yandexcloud.net
+paths:
+  /:
+    get:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4eqheufctq3hc0p94pt
+  /{*}:
+    get:
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4eqheufctq3hc0p94pt
+      parameters:
+      - description: a
+        explode: false
+        in: path
+        name: '*'
+        required: false
+        style: simple
 ```
