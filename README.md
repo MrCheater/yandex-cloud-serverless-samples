@@ -114,5 +114,54 @@ paths:
         style: simple
 ```
 
+#### CLI
+```sh
+Usage:
+  yc serverless api-gateway <command>
+
+Commands:
+  get                   Get api-gateway
+  list                  List api-gateways
+  get-spec              Get api-gateway openapi specification
+  create                Create api-gateway
+  update                Update api-gateway
+  delete                Delete api-gateway
+  list-operations       List api-gateway operations
+  list-access-bindings  List api-gateway access bindings
+  set-access-bindings   Set access bindings for the specified api-gateway and delete all existing access bindings if there were 
+                        any 
+  add-access-binding    Add access binding for the specified api-gateway
+  remove-access-binding Remove access binding for the specified api-gateway
+```
+```sh
+Usage:
+  yc serverless function <group|command>
+
+Groups:
+  version                      Manage function versions
+  runtime                      Inspect function runtimes
+
+Commands:
+  get                          Show information about the specified function
+  list                         List functions
+  create                       Create a function
+  update                       Update the specified function
+  add-labels                   Add labels to specified function
+  remove-labels                Remove labels from specified function
+  delete                       Delete the specified function
+  tag-history                  Show history of the tag for the specified function
+  list-operations              Show operations for the specified function
+  logs                         Show logs for the specified function
+  invoke                       Invoke the specified function
+  list-access-bindings         List access bindings for the specified function
+  set-access-bindings          Set access bindings for the specified function and delete all existing access bindings if there 
+                               were any 
+  add-access-binding           Add access binding for the specified function
+  remove-access-binding        Remove access binding for the specified function
+  allow-unauthenticated-invoke Allow unauthenticated invoke for the specified function
+  deny-unauthenticated-invoke  Deny unauthenticated invoke for the specified function
+```
+
+
 #### Bug Tracker
 https://console.cloud.yandex.ru/support/create-ticket 
