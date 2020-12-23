@@ -112,3 +112,6 @@ paths:
         required: false
         style: simple
 ```
+
+#### Bug Tracker
+https://console.cloud.yandex.ru/support/create-ticket 
