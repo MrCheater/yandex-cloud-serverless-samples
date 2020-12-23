@@ -4,6 +4,7 @@
 https://cloud.yandex.com/docs/cli/quickstart
 
 #### Cloud Function Event / API Gateway Event
+Context: https://cloud.yandex.com/docs/functions/lang/nodejs/context
 ```json
 {
   "httpMethod": "GET",
