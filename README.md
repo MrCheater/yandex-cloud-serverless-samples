@@ -85,6 +85,7 @@ https://cloud.yandex.com/docs/cli/quickstart
 ```
 
 #### API Gateway Config
+Specification: http://spec.openapis.org/oas/v3.0.0
 ```yaml
 openapi: 3.0.0
 info:
