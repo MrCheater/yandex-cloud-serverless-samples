@@ -1,0 +1,14 @@
+{
+  "name": "capybara",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "prepare": "tsc",
+    "build": "build --name=capybara"
+  },
+  "dependencies": {
+    "io-ts": "2.2.13",
+    "fp-ts": "2.9.1",
+    "route-trie": "3.0.0"
+  }
+}
