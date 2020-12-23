@@ -102,3 +102,11 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Custom
+scripts/.env
+tsconfig.tsbuildinfo
+.idea/
+.vscode
+vscode
+./.cloud-functions
