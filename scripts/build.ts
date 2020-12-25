@@ -1,10 +1,10 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as chalk from "chalk";
 import * as archiver from "archiver";
 import { execSync } from "child_process";
 import { sync as rimraf } from "rimraf";
 import minimist from "minimist";
+import chalk from "chalk";
 
 import {
   cloudFunctionsDir,
@@ -95,6 +95,7 @@ const main = async (params: { name: string; production: string }) => {
   );
 };
 
-main(minimist(process.argv.slice(2)) as any).catch(() => {
+main(minimist(process.argv.slice(2)) as any).catch((error) => {
+  console.error(error);
   process.exit(1);
 });
