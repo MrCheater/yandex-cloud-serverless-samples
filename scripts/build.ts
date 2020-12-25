@@ -1,33 +1,19 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as chalk from "chalk";
+import * as archiver from "archiver";
 import { execSync } from "child_process";
 import { sync as rimraf } from "rimraf";
-import * as minimist from "minimist";
-import * as archiver from "archiver";
+import minimist from "minimist";
 
-const chalk = require("chalk");
+import {
+  cloudFunctionsDir,
+  bundledCloudFunctionsDir,
+  monorepoDir,
+  safeName,
+} from "./helpers";
 
-const monorepoDir = path.join(__dirname, "..");
-const assetsRootDir = path.join(monorepoDir, "cloud-functions");
-const bundledAssetsRootDir = path.join(monorepoDir, ".cloud-functions");
-
-const assetsDirectories = fs
-  .readdirSync(assetsRootDir)
-  .map((pathname) => ({
-    assetDir: path.join(assetsRootDir, pathname),
-    bundledAssetsDir: bundledAssetsRootDir,
-  }))
-  .filter(({ assetDir }) => fs.lstatSync(assetDir).isDirectory())
-  .filter(({ assetDir }) => fs.existsSync(path.join(assetDir, "package.json")));
-
-const safeName = (name) =>
-  `${name.replace(/@/, "").replace(/[/|\\]/g, "-")}.zip`;
-
-rimraf(bundledAssetsRootDir);
-
-fs.mkdirSync(bundledAssetsRootDir);
-
-const zipAsset = async (assetDir, bundledAssetsDir) => {
+const zipAsset = async (assetDir: string, bundledAssetsDir: string) => {
   const assetPath = path.join(
     bundledAssetsDir,
     safeName(path.parse(assetDir).name)
@@ -47,7 +33,7 @@ const zipAsset = async (assetDir, bundledAssetsDir) => {
 
       const output = fs.createWriteStream(assetPath);
 
-      const archive = archiver("zip", options);
+      const archive = archiver.create("zip", options);
 
       archive.directory(assetDir, false);
 
@@ -65,7 +51,24 @@ const zipAsset = async (assetDir, bundledAssetsDir) => {
   );
 };
 
-const main = async ({ name, production }) => {
+const main = async (params: { name: string; production: string }) => {
+  const { name, production } = params;
+
+  const assetsDirectories = fs
+    .readdirSync(cloudFunctionsDir)
+    .map((pathname) => ({
+      assetDir: path.join(cloudFunctionsDir, pathname),
+      bundledAssetsDir: bundledCloudFunctionsDir,
+    }))
+    .filter(({ assetDir }) => fs.lstatSync(assetDir).isDirectory())
+    .filter(({ assetDir }) =>
+      fs.existsSync(path.join(assetDir, "package.json"))
+    );
+
+  rimraf(bundledCloudFunctionsDir);
+
+  fs.mkdirSync(bundledCloudFunctionsDir);
+
   await Promise.all(
     assetsDirectories.map(async ({ assetDir, bundledAssetsDir }) => {
       const assetName = path.parse(assetDir).name;
@@ -92,6 +95,6 @@ const main = async ({ name, production }) => {
   );
 };
 
-main(minimist(process.argv.slice(2))).catch(() => {
+main(minimist(process.argv.slice(2)) as any).catch(() => {
   process.exit(1);
 });
