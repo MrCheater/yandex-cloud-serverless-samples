@@ -1,5 +1,25 @@
 # yandex-cloud-serverless-samples
 
+#### Usage
+```
+$ yarn build && yarn deploy --name=capybara
+
+$ ts-node scripts/build.ts
+Start building: capybara
+
+$ tsc
+* ~/yandex-cloud-serverless-samples/.cloud-functions/capybara.zip [ 741.3 KB ]
+Finished building: capybara
+Done in 3.03s.
+
+$ ts-node scripts/deploy.ts --name=capybara
+Creating Function...
+Deploying version...
+Creating API Gateway...
+https://d5dn5viopst5a0h5takb.apigw.yandexcloud.net
+Done in 7.64s.
+```
+
 #### Getting started with the command-line interface
 https://cloud.yandex.com/docs/cli/quickstart
 

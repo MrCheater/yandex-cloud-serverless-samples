@@ -1,9 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
+import { execSync } from "child_process";
 import { Session } from "yandex-cloud";
 import { FunctionService } from "yandex-cloud/api/serverless/functions/v1";
 import { AccessBindingAction } from "yandex-cloud/api/access";
 import minimist from "minimist";
+import chalk from "chalk";
+
+//--token string   //               Set the OAuth token to use.
 
 import {
   folderId,
@@ -11,6 +15,49 @@ import {
   bundledCloudFunctionsDir,
   safeName,
 } from "./helpers";
+
+const dropApiGatewaySpecificationFile = () => {
+  const filename = path.join(__dirname, "api-gateway.temp.txt");
+  if (fs.existsSync(filename)) {
+    fs.unlinkSync(filename);
+  }
+};
+
+const createApiGatewaySpecificationFile = (params: {
+  name: string;
+  functionId: string;
+}) => {
+  const { functionId, name } = params;
+  dropApiGatewaySpecificationFile();
+  const filename = path.join(__dirname, "api-gateway.temp.txt");
+  fs.writeFileSync(
+    filename,
+    [
+      `openapi: 3.0.0`,
+      `info:`,
+      `  title: ${name} API Gateway`,
+      `  version: 1.0.0`,
+      `paths:`,
+      `  /:`,
+      `    get:`,
+      `      x-yc-apigateway-integration:`,
+      `        type: cloud_functions`,
+      `        function_id: ${functionId}`,
+      `  /{*}:`,
+      `    get:`,
+      `      x-yc-apigateway-integration:`,
+      `        type: cloud_functions`,
+      `        function_id: ${functionId}`,
+      `      parameters:`,
+      `      - description: wildcard`,
+      `        explode: false`,
+      `        in: path`,
+      `        name: '*'`,
+      `        required: false`,
+      `        style: simple`,
+    ].join("\n")
+  );
+};
 
 const findFunctionIdByName = async (params: {
   functions: FunctionService;
@@ -78,6 +125,7 @@ const main = async (params: { name: string; description?: string }) => {
 
   const functions = new FunctionService(session);
 
+  console.log("Creating Function...");
   let functionId = await ensureFunction({
     functions,
     name,
@@ -101,13 +149,14 @@ const main = async (params: { name: string; description?: string }) => {
     ],
   });
 
+  console.log("Deploying version...");
   await functions.createVersion({
     entrypoint: "lib/index.handler",
     runtime: "nodejs12",
     environment: {},
     // Bad type
     executionTimeout: {
-      seconds: 15,
+      seconds: 30,
       nanos: 0,
     } as any,
     functionId,
@@ -117,9 +166,45 @@ const main = async (params: { name: string; description?: string }) => {
       path.join(bundledCloudFunctionsDir, safeName(name))
     ),
   });
+
+  createApiGatewaySpecificationFile({ name, functionId });
+
+  try {
+    console.log("Creating API Gateway...");
+    const { domain } = JSON.parse(
+      execSync(
+        `yc serverless api-gateway create ${name} --spec=api-gateway.temp.txt --token=${oauthToken} --folder-id=${folderId} --format=json`,
+        {
+          cwd: __dirname,
+        }
+      ).toString("utf8")
+    );
+
+    console.log(chalk.green(`https://${domain}`));
+  } catch (error) {
+    if (/Duplicate name/.test(`${error}`)) {
+      const { domain } = JSON.parse(
+        execSync(
+          `yc serverless api-gateway update ${name} --spec=api-gateway.temp.txt --token=${oauthToken} --format=json`,
+          {
+            cwd: __dirname,
+          }
+        ).toString("utf8")
+      );
+
+      console.log(chalk.green(`https://${domain}`));
+    } else {
+      throw error;
+    }
+  }
 };
 
-main(minimist(process.argv.slice(2)) as any).catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+main(minimist(process.argv.slice(2)) as any)
+  .then(() => {
+    dropApiGatewaySpecificationFile();
+  })
+  .catch((error) => {
+    dropApiGatewaySpecificationFile();
+    console.error(error);
+    process.exit(1);
+  });

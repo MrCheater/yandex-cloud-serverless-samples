@@ -1,4 +1,9 @@
 export async function handler(event: any, context: any) {
+  // return {
+  //   statusCode: 200,
+  //   body: "QQQ",
+  // };
+
   return {
     statusCode: 302,
     multiValueHeaders: {
