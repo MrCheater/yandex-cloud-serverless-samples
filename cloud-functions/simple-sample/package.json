@@ -1,0 +1,14 @@
+{
+  "name": "capybara",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "prepare": "tsc",
+    "build": "build --name=capybara"
+  },
+  "dependencies": {
+    "route-trie": "3.0.0",
+    "cookie": "0.4.1",
+    "content-disposition": "0.5.3"
+  }
+}

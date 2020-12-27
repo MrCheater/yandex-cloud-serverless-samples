@@ -23,4 +23,13 @@ if (folderId == null || folderId === "") {
   throw new Error('Empty "process.env.FOLDER_ID"');
 }
 
-export { oauthToken, folderId };
+const databaseEntryPoint = process.env.DATABASE_ENTRY_POINT as string;
+if (databaseEntryPoint == null || databaseEntryPoint === "") {
+  throw new Error('Empty "process.env.DATABASE_ENTRY_POINT"');
+}
+const databaseName = process.env.DATABASE_NAME as string;
+if (databaseName == null || databaseName === "") {
+  throw new Error('Empty "process.env.DATABASE_NAME"');
+}
+
+export { oauthToken, folderId, databaseEntryPoint, databaseName };

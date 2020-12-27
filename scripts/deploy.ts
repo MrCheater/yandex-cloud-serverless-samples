@@ -7,11 +7,10 @@ import { AccessBindingAction } from "yandex-cloud/api/access";
 import minimist from "minimist";
 import chalk from "chalk";
 
-//--token string   //               Set the OAuth token to use.
-
 import {
   folderId,
   oauthToken,
+  databaseEntryPoint, databaseName,
   bundledCloudFunctionsDir,
   safeName,
 } from "./helpers";
@@ -153,7 +152,10 @@ const main = async (params: { name: string; description?: string }) => {
   await functions.createVersion({
     entrypoint: "lib/index.handler",
     runtime: "nodejs12",
-    environment: {},
+    environment: {
+      DATABASE_ENTRY_POINT: databaseEntryPoint,
+      DATABASE_NAME: databaseName
+    },
     // Bad type
     executionTimeout: {
       seconds: 30,
