@@ -4,15 +4,22 @@ import { execSync } from "child_process";
 import { Session } from "yandex-cloud";
 import { FunctionService } from "yandex-cloud/api/serverless/functions/v1";
 import { AccessBindingAction } from "yandex-cloud/api/access";
+import S3 from "aws-sdk/clients/s3";
 import minimist from "minimist";
 import chalk from "chalk";
 
 import {
   folderId,
   oauthToken,
-  databaseEntryPoint, databaseName,
+  databaseEntryPoint,
+  databaseName,
   bundledCloudFunctionsDir,
   safeName,
+  accessKeyId,
+  secretAccessKey,
+  assetsBucketName,
+  s3Endpoint,
+  s3Region,
 } from "./helpers";
 
 const dropApiGatewaySpecificationFile = () => {
@@ -124,6 +131,25 @@ const main = async (params: { name: string; description?: string }) => {
 
   const functions = new FunctionService(session);
 
+  const s3 = new S3({
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
+    },
+    region: s3Region,
+    endpoint: s3Endpoint,
+  });
+
+  await s3
+    .putObject({
+      Bucket: assetsBucketName,
+      Body: fs.createReadStream(
+        path.join(bundledCloudFunctionsDir, safeName(name))
+      ),
+      Key: safeName(name),
+    })
+    .promise();
+
   console.log("Creating Function...");
   let functionId = await ensureFunction({
     functions,
@@ -154,7 +180,7 @@ const main = async (params: { name: string; description?: string }) => {
     runtime: "nodejs12",
     environment: {
       DATABASE_ENTRY_POINT: databaseEntryPoint,
-      DATABASE_NAME: databaseName
+      DATABASE_NAME: databaseName,
     },
     // Bad type
     executionTimeout: {
@@ -164,9 +190,12 @@ const main = async (params: { name: string; description?: string }) => {
     functionId,
     // Bad type
     resources: { memory: 128 * 1024 * 1024 } as any,
-    content: fs.readFileSync(
-      path.join(bundledCloudFunctionsDir, safeName(name))
-    ),
+    // Magic constant
+    serviceAccountId: "ajebathoon84957qbk3h",
+    package: {
+      bucketName: assetsBucketName,
+      objectName: safeName(name),
+    },
   });
 
   createApiGatewaySpecificationFile({ name, functionId });
