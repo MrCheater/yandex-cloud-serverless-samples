@@ -20,6 +20,34 @@ https://d5dn5viopst5a0h5takb.apigw.yandexcloud.net
 Done in 7.64s.
 ```
 
+#### Database
+```
+Install dependencies:
+
+npm install ydb-sdk
+Code example:
+
+const {Driver, getCredentialsFromEnv, getLogger} = require('ydb-sdk');
+const logger = getLogger({level: 'debug'});
+const entryPoint = 'xxxxxxxxx';
+const dbName = 'xxxxxxxxx';
+const authService = getCredentialsFromEnv(entryPoint, dbName, logger);
+const driver = new Driver(entryPoint, dbName, authService);
+
+async function run() { 
+  if (!await driver.ready(10000)) {
+      logger.fatal(`Driver has not become ready in 10 seconds!`);
+      process.exit(1);
+  }
+
+  await driver.tableClient.withSession(async (session) => {
+      // executing requests in a specific session
+  });
+}
+
+run();
+```
+
 #### Getting started with the command-line interface
 https://cloud.yandex.com/docs/cli/quickstart
 
