@@ -17,7 +17,6 @@
     "moduleResolution": "node",
     "removeComments": false,
     "resolveJsonModule": true,
-    "noUncheckedIndexedAccess": true,
     "types": ["node", "archiver", "rimraf", "request", "query-string"]
   }
 }

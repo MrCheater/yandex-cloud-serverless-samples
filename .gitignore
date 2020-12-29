@@ -111,3 +111,4 @@ tsconfig.tsbuildinfo
 vscode
 .cloud-functions/
 lib/
+key.json
